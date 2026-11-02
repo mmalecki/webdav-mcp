@@ -1,0 +1,10 @@
+.git
+.gitignore
+.dockerignore
+Dockerfile
+zig-out/
+.zig-cache/
+TODO.md
+build-and-deploy.sh
+*.env
+.env*
