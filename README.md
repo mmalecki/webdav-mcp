@@ -81,6 +81,39 @@ zig build cross
 | `webdav-mcp-linux-armv7` | Linux ARMv7 / Raspberry Pi (static musl) |
 | `webdav-mcp-windows-x86_64.exe` | Windows x86-64 |
 
+## Running with Docker
+
+The `Dockerfile` builds a static binary in a Zig build stage and ships it in a `scratch` image (~800 KB) that runs as a non-root user (UID/GID 65532). Multi-arch builds work via `--platform` (`linux/amd64`, `linux/arm64`, `linux/arm/v7`, `linux/riscv64`); Zig cross-compiles, so no emulation is needed.
+
+```bash
+docker build -t webdav-mcp .
+
+# -i keeps stdin open, which the stdio MCP transport requires
+docker run -i --rm \
+  -e WEBDAV_URL=http://your-webdav-server:8080 \
+  -e WEBDAV_USER=your-username \
+  -e WEBDAV_PASS=your-password \
+  webdav-mcp
+```
+
+As an MCP server entry:
+
+```json
+{
+  "mcp_servers": {
+    "webdav": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "-e", "WEBDAV_URL", "-e", "WEBDAV_USER", "-e", "WEBDAV_PASS", "webdav-mcp"],
+      "env": {
+        "WEBDAV_URL": "http://your-webdav-server:8080",
+        "WEBDAV_USER": "your-username",
+        "WEBDAV_PASS": "your-password"
+      }
+    }
+  }
+}
+```
+
 ## Integration with nullclaw / *Claw bots
 
 Add an `mcp_servers` entry to your bot's `config.json`:
